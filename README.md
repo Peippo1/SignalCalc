@@ -1,60 +1,58 @@
-Calculator created with ReactJS
+# Signal Calculator
 
+Accessible, keyboard-first calculator built with React 18. Includes memory keys, history tape, sign toggle, parentheses support, copy-to-clipboard, and a high-contrast theme.
 
-Getting Started with Create React App
-This project was bootstrapped with Create React App.
+## Features
+- Full keyboard control: numbers, operators, decimal, Enter `=` to evaluate, Backspace to delete, Escape/Delete to clear, Alt+C/MR/M+/M- for memory controls.
+- Memory keys: MC, MR, M+, M- operate on the current result; memory persists until cleared.
+- History tape: last five calculations are captured with expression and result.
+- Input helpers: sign toggle (±), parentheses, per-number decimal guard, operator replacement, incomplete-expression guard.
+- Accessibility: `role="application"` wrapper, polite live regions for expression/result and copy status, screen-reader help text, focus outlines, ARIA labels on controls, copy confirmation.
+- Theming: default dark look plus high-contrast toggle.
+- Copy result: one-click copy with status feedback.
 
-Available Scripts
-In the project directory, you can run:
-
+## Quick start
+```bash
+npm install
 npm start
-Runs the app in the development mode.
-Open http://localhost:3000 to view it in the browser.
+```
+Visit `http://localhost:3000` and interact via keyboard or mouse.
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+## Keyboard shortcuts
+- Numbers / `+ - * / . ( )` : type directly
+- `Enter` or `=` : evaluate
+- `Backspace` : delete last character
+- `Escape` or `Delete` : clear all
+- `Alt + C` : memory clear (MC)
+- `Alt + R` : memory recall (MR)
+- `Alt + =` : memory add (M+)
+- `Alt + -` : memory subtract (M-)
+- `±` button: toggle sign of the last number
 
-npm test
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
+## Memory behavior
+- M+ / M- operate on the current result value.
+- MR inserts the stored number at the end of the expression (or replaces `0`).
+- MC clears stored memory without touching the expression/result.
 
-npm run build
-Builds the app for production to the build folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Scripts
+- `npm start` — run dev server
+- `npm test` — run tests once (`CI=true npm test -- --watch=false`)
+- `npm run build` — production build
 
-The build is minified and the filenames include the hashes.
-Your app is ready to be deployed!
+## Testing
+Jest + Testing Library cover calculation, clearing, keyboard flows, memory recall, and sign toggling. Add more cases as you extend advanced math or UI behaviors.
 
-See the section about deployment for more information.
+## Accessibility & UX notes
+- Visible focus states on all interactive elements; calculator gains focus on load.
+- Expression/result are announced via polite live regions; copy action provides confirmation.
+- High-contrast mode available via header toggle.
+- Responsive layout adapts to mobile with larger hit targets.
 
-npm run eject
-Note: this is a one-way operation. Once you eject, you can’t go back!
+## Tech stack
+- React 18, mathjs, Create React App tooling
+- CSS variables for theming and responsive grid layout
 
-If you aren’t satisfied with the build tool and configuration choices, you can eject at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except eject will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use eject. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-Learn More
-You can learn more in the Create React App documentation.
-
-To learn React, check out the React documentation.
-
-Code Splitting
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-Analyzing the Bundle Size
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-Making a Progressive Web App
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-Advanced Configuration
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-Deployment
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-npm run build fails to minify
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## Future ideas
+- Persist history/memory across sessions
+- Add advanced functions (sqrt, power), tape export, or programmable shortcuts
+- Add auditory feedback cues for error states
