@@ -18,6 +18,10 @@ npm start
 ```
 Visit `http://localhost:3000` and interact via keyboard or mouse.
 
+## Screenshot
+
+![Calculator Screenshot](./docs/screenshot.png)
+
 ## Keyboard shortcuts
 - Numbers / `+ - * / ^ . ( )` : type directly
 - `Enter` or `=` : evaluate
