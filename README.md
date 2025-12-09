@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/Store Header.png" alt="FinchWorks Studio Banner" />
+  <img src="./docs/finchworks-banner.png" alt="FinchWorks Studio Banner" />
 </p>
 
 # Signal Calculator
