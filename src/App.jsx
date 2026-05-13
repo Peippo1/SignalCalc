@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  evaluateCalculatorExpression,
   getLastNumberBounds,
+  MAX_EXPRESSION_LENGTH,
   MEMORY_KEYS,
   normalizeStoredExpression,
   normalizeStoredHistory,
   normalizeStoredMemory,
   normalizeStoredTheme,
   OPERATORS,
-  safeEvaluate,
 } from './calculatorCore';
 import './App.css';
 
@@ -42,6 +43,8 @@ const BUTTONS = [
   'Ans',
   '=',
 ];
+
+const fitExpression = (value, fallback = value) => (value.length <= MAX_EXPRESSION_LENGTH ? value : fallback);
 
 const App = () => {
   const [expression, setExpression] = useState(() => normalizeStoredExpression(window.localStorage.getItem('calc-expression')));
@@ -89,8 +92,7 @@ const App = () => {
     if (OPERATORS.has(expression.at(-1)) || expression.at(-1) === '(') return '';
     if (parenBalance !== 0) return 'Unmatched parentheses';
     try {
-      const evaluated = safeEvaluate(expression);
-      return `≈ ${evaluated}`;
+      return `≈ ${evaluateCalculatorExpression(expression)}`;
     } catch (err) {
       return '';
     }
@@ -147,6 +149,7 @@ const App = () => {
     if (value === 'C') {
       setExpression('0');
       setResult('0');
+      setJustEvaluated(false);
       return;
     }
 
@@ -170,8 +173,7 @@ const App = () => {
       }
 
       try {
-        const evaluated = safeEvaluate(expression);
-        const evaluatedStr = String(evaluated);
+        const evaluatedStr = evaluateCalculatorExpression(expression);
         setResult(evaluatedStr);
         setExpression(evaluatedStr);
         setHistory((prev) => [{ expression, result: evaluatedStr }, ...prev].slice(0, 5));
@@ -185,7 +187,8 @@ const App = () => {
     if (value === 'Ans') {
       setExpression((prev) => {
         if (justEvaluated) return result;
-        return prev === '0' || resetPrevious ? result : `${prev}${result}`;
+        const next = prev === '0' || resetPrevious ? result : `${prev}${result}`;
+        return fitExpression(next, prev);
       });
       return;
     }
@@ -199,7 +202,7 @@ const App = () => {
         if (!currentNumber) return base;
         const toggled = currentNumber.startsWith('-') ? currentNumber.slice(1) : `-${currentNumber}`;
         const next = `${base.slice(0, start)}${toggled}${base.slice(end)}`;
-        return next || '0';
+        return fitExpression(next || '0', base || '0');
       });
       return;
     }
@@ -207,7 +210,8 @@ const App = () => {
     if (value === '(') {
       setExpression((prev) => {
         const base = resetPrevious ? '' : prev;
-        return base === '0' || base === '' ? '(' : base + '(';
+        const next = base === '0' || base === '' ? '(' : base + '(';
+        return fitExpression(next, base || '0');
       });
       return;
     }
@@ -219,7 +223,7 @@ const App = () => {
         const close = (base.match(/\)/g) || []).length;
         if (open <= close) return base || '0';
         if (OPERATORS.has(base.at(-1)) || base.at(-1) === '(') return base || '0';
-        return base + ')';
+        return fitExpression(base + ')', base || '0');
       });
       return;
     }
@@ -232,7 +236,8 @@ const App = () => {
         const numeric = Number(number);
         if (Number.isNaN(numeric)) return base || '0';
         const percentValue = numeric / 100;
-        return replaceLastNumber(base || '0', percentValue);
+        const next = replaceLastNumber(base || '0', percentValue);
+        return fitExpression(next, base || '0');
       });
       return;
     }
@@ -243,7 +248,8 @@ const App = () => {
         const { start, end } = getLastNumberBounds(base);
         const number = base.slice(start, end) || '0';
         const wrapped = `sqrt(${number})`;
-        return replaceLastNumber(base || '0', wrapped);
+        const next = replaceLastNumber(base || '0', wrapped);
+        return fitExpression(next, base || '0');
       });
       return;
     }
@@ -264,7 +270,7 @@ const App = () => {
         }
       }
 
-      return previous + value;
+      return fitExpression(previous + value, previous || '0');
     });
   };
 

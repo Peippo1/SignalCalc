@@ -58,6 +58,22 @@ export const safeEvaluate = (value) => {
   return evaluate(value);
 };
 
+export const evaluateCalculatorExpression = (value) => {
+  const evaluated = safeEvaluate(value);
+  const numeric = typeof evaluated === 'number' ? evaluated : Number(evaluated);
+
+  if (!Number.isFinite(numeric)) {
+    throw new Error('Result is not finite');
+  }
+
+  const result = Object.is(numeric, -0) ? '0' : String(numeric);
+  if (!isSafeExpression(result)) {
+    throw new Error('Result is outside calculator range');
+  }
+
+  return result;
+};
+
 export const getLastNumberBounds = (value) => {
   let end = value.length;
   let start = end;

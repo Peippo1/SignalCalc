@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  evaluateCalculatorExpression,
   getLastNumberBounds,
   isSafeExpression,
   normalizeStoredHistory,
@@ -11,11 +12,17 @@ import {
 describe('calculator core', () => {
   test('evaluates allowed calculator expressions', () => {
     expect(safeEvaluate('sqrt(9)+2^3')).toBe(11);
+    expect(evaluateCalculatorExpression('sqrt(9)+2^3')).toBe('11');
   });
 
   test('rejects expressions outside the calculator grammar', () => {
     expect(isSafeExpression('constructor.constructor("alert(1)")()')).toBe(false);
     expect(() => safeEvaluate('import("fs")')).toThrow('Unsafe expression');
+  });
+
+  test('rejects non-finite and non-real results', () => {
+    expect(() => evaluateCalculatorExpression('1/0')).toThrow('Result is not finite');
+    expect(() => evaluateCalculatorExpression('sqrt(-1)')).toThrow('Result is not finite');
   });
 
   test('normalizes stored state from untrusted browser storage', () => {

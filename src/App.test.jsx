@@ -135,3 +135,29 @@ test('filters unsafe history restored from storage', () => {
   expect(screen.getByText(/2\+2/)).toBeInTheDocument();
   expect(screen.queryByText(/constructor/)).not.toBeInTheDocument();
 });
+
+test('does not store non-finite results', async () => {
+  render(<App />);
+
+  await press('1');
+  await press('/');
+  await press('0');
+  await press('=');
+
+  expect(screen.getByRole('alert')).toHaveTextContent('Could not evaluate');
+  expect(screen.getByLabelText(/result/i)).toHaveTextContent('0');
+  expect(screen.queryByText(/1\/0/)).not.toBeInTheDocument();
+});
+
+test('clearing after an evaluation resets the next expression', async () => {
+  render(<App />);
+
+  await press('2');
+  await press('+');
+  await press('3');
+  await press('=');
+  await press('C');
+  await press('4');
+
+  expect(screen.getByLabelText(/expression/i)).toHaveTextContent('4');
+});
