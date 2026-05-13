@@ -58,10 +58,35 @@ Visit `http://localhost:5173` and interact via keyboard or mouse.
 - `npm run dev` — run dev server
 - `npm test` — run Vitest
 - `npm run build` — production build
+- `npm run mobile:sync` — build the web app and sync both native shells
+- `npm run android:sync` — build and sync the Android shell
+- `npm run ios:sync` — build and sync the iOS shell
+- `npm run android:open` — sync then open the Android project in Android Studio
+- `npm run ios:open` — sync then open the iOS Swift/Xcode project
 - `npm run preview` — preview a production build locally
 
+## Mobile apps
+This project uses Capacitor to package the existing React/Vite calculator as native Android and iOS apps.
+
+- Android project: `android/`
+- iOS project: `ios/App/App.xcodeproj`
+- iOS native entry point: `ios/App/App/AppDelegate.swift`
+- Capacitor config: `capacitor.config.json`
+
+Workflow:
+```bash
+npm install
+npm run mobile:sync
+npm run android:open
+npm run ios:open
+```
+
+Local native toolchain notes:
+- Android builds require a local Java runtime/JDK and Android Studio.
+- iOS builds require Xcode with the installed iOS platform/simulator components matching the local CoreSimulator version.
+
 ## Testing
-Vitest + Testing Library cover calculation, clearing, keyboard flows, memory recall, and sign toggling. Add more cases as you extend advanced math or UI behaviors.
+Vitest + Testing Library cover calculation, clearing, keyboard flows, memory recall, sign toggling, storage hardening, and the shared calculator core. Add more cases as you extend advanced math or UI behaviors.
 
 ## Accessibility & UX notes
 - Visible focus states on all interactive elements; calculator gains focus on load.
@@ -71,12 +96,13 @@ Vitest + Testing Library cover calculation, clearing, keyboard flows, memory rec
 
 ## Tech stack
 - React 18, mathjs, Vite tooling
+- Capacitor native shells for Android and iOS
 - CSS variables for theming and responsive grid layout
 
 ## Future ideas
-- Persist history/memory across sessions
-- Add advanced functions (sqrt, power), tape export, or programmable shortcuts
-- Add auditory feedback cues for error states
+- Split `mathjs` into a smaller expression engine or lazy-loaded chunk to reduce mobile bundle size.
+- Add native share/export actions through Capacitor plugins.
+- Add advanced tape export, programmable shortcuts, and auditory feedback cues for error states.
 
 ## License
 

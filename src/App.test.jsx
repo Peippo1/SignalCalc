@@ -113,3 +113,25 @@ test('inserts last answer with Ans key', async () => {
 
   expect(screen.getByLabelText(/result/i)).toHaveTextContent('10');
 });
+
+test('ignores unsafe expressions restored from storage', () => {
+  window.localStorage.setItem('calc-expression', 'import("fs")');
+  window.localStorage.setItem('calc-result', '__proto__');
+
+  render(<App />);
+
+  expect(screen.getByLabelText(/expression/i)).toHaveTextContent('0');
+  expect(screen.getByLabelText(/result/i)).toHaveTextContent('0');
+});
+
+test('filters unsafe history restored from storage', () => {
+  window.localStorage.setItem('calc-history', JSON.stringify([
+    { expression: '2+2', result: '4' },
+    { expression: 'constructor.constructor("alert(1)")()', result: '0' },
+  ]));
+
+  render(<App />);
+
+  expect(screen.getByText(/2\+2/)).toBeInTheDocument();
+  expect(screen.queryByText(/constructor/)).not.toBeInTheDocument();
+});

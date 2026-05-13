@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { evaluate } from 'mathjs';
+import {
+  getLastNumberBounds,
+  MEMORY_KEYS,
+  normalizeStoredExpression,
+  normalizeStoredHistory,
+  normalizeStoredMemory,
+  normalizeStoredTheme,
+  OPERATORS,
+  safeEvaluate,
+} from './calculatorCore';
 import './App.css';
 
-const OPERATORS = new Set(['+', '-', '*', '/', '^']);
-const MEMORY_KEYS = new Set(['MC', 'MR', 'M+', 'M-']);
 const BUTTONS = [
   'MC',
   'MR',
@@ -36,35 +43,20 @@ const BUTTONS = [
   '=',
 ];
 
-const getLastNumberBounds = (value) => {
-  let end = value.length;
-  let start = end;
-  while (start > 0 && /[0-9.]/.test(value[start - 1])) {
-    start -= 1;
-  }
-  if (start > 0 && value[start - 1] === '-' && (start - 1 === 0 || OPERATORS.has(value[start - 2]) || value[start - 2] === '(')) {
-    start -= 1;
-  }
-  return { start, end };
-};
-
 const App = () => {
-  const [expression, setExpression] = useState(() => window.localStorage.getItem('calc-expression') || '0');
-  const [result, setResult] = useState(() => window.localStorage.getItem('calc-result') || '0');
+  const [expression, setExpression] = useState(() => normalizeStoredExpression(window.localStorage.getItem('calc-expression')));
+  const [result, setResult] = useState(() => normalizeStoredExpression(window.localStorage.getItem('calc-result')));
   const [error, setError] = useState('');
   const [history, setHistory] = useState(() => {
     try {
       const raw = window.localStorage.getItem('calc-history');
-      return raw ? JSON.parse(raw) : [];
+      return raw ? normalizeStoredHistory(JSON.parse(raw)) : [];
     } catch (err) {
       return [];
     }
   });
-  const [memory, setMemory] = useState(() => {
-    const raw = window.localStorage.getItem('calc-memory');
-    return raw ? Number(raw) : null;
-  });
-  const [theme, setTheme] = useState(() => window.localStorage.getItem('calc-theme') || 'dark');
+  const [memory, setMemory] = useState(() => normalizeStoredMemory(window.localStorage.getItem('calc-memory')));
+  const [theme, setTheme] = useState(() => normalizeStoredTheme(window.localStorage.getItem('calc-theme')));
   const [copyStatus, setCopyStatus] = useState('');
   const [justEvaluated, setJustEvaluated] = useState(false);
   const wrapperRef = useRef(null);
@@ -97,7 +89,7 @@ const App = () => {
     if (OPERATORS.has(expression.at(-1)) || expression.at(-1) === '(') return '';
     if (parenBalance !== 0) return 'Unmatched parentheses';
     try {
-      const evaluated = evaluate(expression);
+      const evaluated = safeEvaluate(expression);
       return `≈ ${evaluated}`;
     } catch (err) {
       return '';
@@ -178,7 +170,7 @@ const App = () => {
       }
 
       try {
-        const evaluated = evaluate(expression);
+        const evaluated = safeEvaluate(expression);
         const evaluatedStr = String(evaluated);
         setResult(evaluatedStr);
         setExpression(evaluatedStr);
