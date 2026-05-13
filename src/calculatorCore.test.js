@@ -15,6 +15,17 @@ describe('calculator core', () => {
     expect(evaluateCalculatorExpression('sqrt(9)+2^3')).toBe('11');
   });
 
+  test('honors precedence, right-associative powers, and implicit multiplication', () => {
+    expect(evaluateCalculatorExpression('2+3*4')).toBe('14');
+    expect(evaluateCalculatorExpression('2^3^2')).toBe('512');
+    expect(evaluateCalculatorExpression('2(3+4)')).toBe('14');
+  });
+
+  test('supports postfix percent values', () => {
+    expect(evaluateCalculatorExpression('50%')).toBe('0.5');
+    expect(evaluateCalculatorExpression('200*10%')).toBe('20');
+  });
+
   test('rejects expressions outside the calculator grammar', () => {
     expect(isSafeExpression('constructor.constructor("alert(1)")()')).toBe(false);
     expect(() => safeEvaluate('import("fs")')).toThrow('Unsafe expression');
@@ -22,7 +33,12 @@ describe('calculator core', () => {
 
   test('rejects non-finite and non-real results', () => {
     expect(() => evaluateCalculatorExpression('1/0')).toThrow('Result is not finite');
-    expect(() => evaluateCalculatorExpression('sqrt(-1)')).toThrow('Result is not finite');
+    expect(() => evaluateCalculatorExpression('sqrt(-1)')).toThrow('Square root requires a non-negative value');
+  });
+
+  test('rejects malformed calculator expressions', () => {
+    expect(() => evaluateCalculatorExpression('1..2')).toThrow('Unexpected token');
+    expect(() => evaluateCalculatorExpression('sqrt(9')).toThrow('Expected closing parenthesis');
   });
 
   test('normalizes stored state from untrusted browser storage', () => {
